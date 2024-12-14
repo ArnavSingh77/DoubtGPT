@@ -102,7 +102,7 @@ function App() {
       <div className="h-full max-w-4xl mx-auto flex flex-col p-3">
         {/* Fixed Header */}
         <header className="text-center py-4">
-          <a href="https://github.com/ArnavSingh77/DoubtGPT" 
+          <a href="https://doubtgpt.netlify.app" 
              target="_blank" 
              rel="noopener noreferrer"
              className="block">
