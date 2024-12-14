@@ -10,7 +10,7 @@ import {
 const apiKey = import.meta.env.VITE_API_GENERATIVE_LANGUAGE_CLIENT;
 const genAI = new GoogleGenerativeAI(apiKey);
 
-const fileManager = new GoogleAIFileManager(apiKey);
+//const fileManager = new GoogleAIFileManager(apiKey);
 
 const model = genAI.getGenerativeModel({
   model: "gemini-2.0-flash-exp",
