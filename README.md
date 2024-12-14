@@ -1,8 +1,8 @@
-# Chat - AI
+# DoubtGPT
 
 AI Chat App using Generative Language Client API
 
-[chat-ai](https://ai.visheshpandey.com)
+[DoubtGPT](https://doubtgpt.netlify.app)
 
 ## Setup Procedure
 
