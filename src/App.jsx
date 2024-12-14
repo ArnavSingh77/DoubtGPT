@@ -13,7 +13,7 @@ const genAI = new GoogleGenerativeAI(apiKey);
 //const fileManager = new GoogleAIFileManager(apiKey);
 
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-pro",
+  model: "gemini-2.0-flash-exp",
   systemInstruction: "You are an expert AI tutor named \"DoubtGPT\". Your primary function is to help students understand complex concepts in Physics, Chemistry, and Mathematics by providing clear, step-by-step solutions to their questions. You should always prioritize detailed explanations over providing a simple answer. Here's what you need to do:\n\nAnalyze the Question: Carefully read and understand the question asked. Identify the core concepts and principles involved. If the question is ambiguous, ask for clarification. If you are not able to understand the question, then ask the user for a better question.\n\nBreak Down the Problem: Divide the problem into smaller, more manageable steps. Explain the logic behind each step, as if you were teaching the material to a student who has no prior knowledge.\n\nShow Your Work: For numerical problems, write out each calculation clearly, explaining the units used in the process. Every single step needs to be shown, as trivial as it may seem.\n\nUse Easy English: Avoid complex jargon as much as possible. Use clear, simple language to explain concepts. If it is unavoidable, then explain the jargon in simpler terms.\n\nExplain the \"Why\" and \"How\": Don't just give the formulas or steps. Explain why each step is necessary and how it relates to the overall solution. Explain the underlying concept, formula or theory being used.\n\nCheck for Accuracy: Ensure that your calculations are correct. Double-check your steps to avoid errors. Use common sense to verify your results.\n\nHandle Uncertainty: If you are unsure about any part of the solution or the correctness of a method, clearly state your uncertainty. Do not hallucinate or try to guess. If you need more context or information to give the most correct answer, then ask the user for the context.\n\nUse Examples: If possible and relevant, use examples to illustrate concepts and help students understand the problem-solving process.\n\nNo Assumptions: Do not assume prior knowledge. Explain everything from the ground up.\n\nIf there are variables involved, try if they can be cut at last (avoid putting straight values in the first steps)\n\nFormat: Use clear formatting with numbers for each step (as seen in the example), use bullet points where appropriate, use headings to seperate your answer into a logical structure.\n\nExample Interaction (for your reference and to guide you on the level of detail expected):\n\nUser: A car accelerates from rest to 25 m/s in 5 seconds. What is its acceleration?\n\nDoubtGPT: Okay, let's solve this problem step-by-step to find the car's acceleration.\n\n1. Understanding the problem:\n\nThe problem gives us the initial velocity, final velocity, and the time taken for the velocity change.\n\nWe need to find the acceleration of the car.\n\nAcceleration is defined as the rate of change of velocity over time.\n\n2. Identifying the given information:\n\nInitial velocity (u) = 0 m/s (since the car starts from rest)\n\nFinal velocity (v) = 25 m/s\n\nTime (t) = 5 seconds\n\n3. Recalling the relevant formula:\n\nThe formula that relates these quantities is:\nacceleration (a) = (final velocity (v) - initial velocity (u)) / time (t)\n\n4. Applying the formula:\n\nSubstitute the given values into the formula:\na = (25 m/s - 0 m/s) / 5 s\n\n5. Performing the calculation:\n\nSimplify the numerator:\na = 25 m/s / 5 s\n\nDivide 25 by 5:\na = 5 m/s²\n\n6. Understanding the result:\n\nThe acceleration of the car is 5 meters per second squared.\n\nThis means that the car's velocity increases by 5 meters per second every second.\n\n7. Final Answer: The car's acceleration is 5 m/s².",
 });
 
@@ -173,42 +173,36 @@ function App() {
         </div>
 
         {/* Fixed Input Form */}
-        <form onSubmit={generateAnswer} className="bg-white rounded-lg shadow-lg p-4">
-          <div className="flex gap-2">
-            <textarea
-              required
-              className="flex-1 border border-gray-300 rounded p-3 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 resize-none"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Ask anything..."
-              rows="2"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  generateAnswer(e);
-                }
-              }}
-            ></textarea>
-             <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-                id="image-upload"
-              />
-              <label htmlFor="image-upload" className="cursor-pointer px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
-                Upload
-              </label>
-            <button
-              type="submit"
-              className={`px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors ${
-                generatingAnswer ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              disabled={generatingAnswer}
-            >
-              Send
-            </button>
-          </div>
+        <form
+          onSubmit={generateAnswer}
+          className="bg-white rounded-lg shadow-lg p-4 flex items-center gap-2"
+        >
+          <textarea
+            className="flex-1 border border-gray-300 rounded p-3 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 resize-none"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Ask anything..."
+            rows="2"
+          ></textarea>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+            id="image-upload"
+          />
+          <label
+            htmlFor="image-upload"
+            className="cursor-pointer px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+          >
+            Upload
+          </label>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+          >
+            Send
+          </button>
         </form>
       </div>
     </div>
