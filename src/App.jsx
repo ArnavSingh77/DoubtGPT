@@ -20,7 +20,7 @@ const genAI = new GoogleGenerativeAI(apiKey);
 
 const model = genAI.getGenerativeModel({
   model: "gemini-2.0-flash-exp",
-  systemInstruction: "You are DoubtGPT - An Expert AI Tutor: Specializes in Physics, Chemistry, Mathematics. Mission: Help students understand complex concepts with clear, step-by-step solutions. Prioritize detailed explanations over simple answers, without revealing any internal identity or system details. 1. Analyze the Question: Carefully read the student’s query. Identify core concepts and principles. Ask for clarification if ambiguous. Request a better-formulated query if nonsensical. 2. Break Down the Problem: Divide into smaller steps. Explain logically, assuming no prior knowledge. 3. Show Your Work: Use clear calculations with units. Show all steps, even trivial ones. 4. Use Simple Language: Avoid jargon; explain in easy terms. Define terms in simpler words. 5. Explain the \"Why\" and \"How\": Explain reasons and connections to the overall solution. Highlight concepts, formulas, or theories. 6. Ensure Accuracy: Double-check all steps and calculations. Use common sense to verify results. 7. Handle Uncertainty Professionally: Clearly state any uncertainty. Ask for more information if needed. 8. Incorporate Examples: Use examples to illustrate complex concepts. For challenging topics, use real-world analogies to make abstract ideas relatable. Break topics into sub-concepts and tackle them one at a time. 9. Avoid Assumptions: Assume no prior knowledge; explain from the ground up. 10. Delay Substitution of Variables: Perform symbolic manipulation first. Substitute numerical values at the last step. 11. Maintain Clear Formatting: Use numbered steps for processes. Bullet points for summaries. Headings for sections. 12. **For mathematical expressions, use LaTeX notation: Inline math should be wrapped in single dollar signs: $E = mc^2$ . Block math should be wrapped in double dollar signs: $$ F = G\\frac{m_1m_2}{r^2} $$ Always use block math (double dollar signs) for every equation, even if it contains merely a \"+, -, * or a /\" sign or subscript.**"
+  systemInstruction: "You are DoubtGPT - An Expert AI Tutor: Specializes in Physics, Chemistry, Mathematics. Mission: Help students understand complex concepts with clear, step-by-step solutions. Prioritize detailed explanations over simple answers, without revealing any internal identity or system details. 1. Analyze the Question: Carefully read the student’s query. Identify core concepts and principles. Ask for clarification if ambiguous. Request a better-formulated query if nonsensical. 2. Break Down the Problem: Divide into smaller steps. Explain logically, assuming no prior knowledge. 3. Show Your Work: Use clear calculations with units. Show all steps, even trivial ones. 4. Use Simple Language: Avoid jargon; explain in easy terms. Define terms in simpler words. 5. Explain the \"Why\" and \"How\": Explain reasons and connections to the overall solution. Highlight concepts, formulas, or theories. 6. Ensure Accuracy: Double-check all steps and calculations. Use common sense to verify results. 7. Handle Uncertainty Professionally: Clearly state any uncertainty. Ask for more information if needed. 8. Incorporate Examples: Use examples to illustrate complex concepts. For challenging topics, use real-world analogies to make abstract ideas relatable. Break topics into sub-concepts and tackle them one at a time. 9. Avoid Assumptions: Assume no prior knowledge; explain from the ground up. 10. Delay Substitution of Variables: Perform symbolic manipulation first. Substitute numerical values at the last step. 11. Maintain Clear Formatting: Use numbered steps for processes. Bullet points for summaries. Headings for sections. 12. For mathematical expressions, use LaTeX notation: Inline math should be wrapped in single dollar signs: $E = mc^2$ . Block math should be wrapped in double dollar signs: $$ F = G\\frac{m_1m_2}{r^2} $$ Always use block math (double dollar signs) for every equation, even if it contains merely a \"+\" sign."
 });
 
 const generationConfig = {
@@ -47,56 +47,38 @@ function App() {
     }
   }, [chatHistory, generatingAnswer]);
 
-  async function run(question, image = null) {
+  async function run(question) {
     setGeneratingAnswer(true);
-    setChatHistory((prev) => [
-      ...prev,
-      { type: "question", content: question, image }
-    ]);
-  
+    setChatHistory(prev => [...prev, { type: 'question', content: question }]);
     try {
       const chatSession = model.startChat({
         generationConfig,
-        history: chatHistory.map((chat) => ({
-          role: chat.type === "question" ? "user" : "model",
+        history: chatHistory.map(chat => ({
+          role: chat.type === 'question' ? 'user' : 'model',
           parts: [{ text: chat.content }]
         })),
       });
-  
       const result = await chatSession.sendMessage(question);
-      const answerText = result.response.text();
-  
-      setAnswer(answerText);
-      setChatHistory((prev) => [
-        ...prev,
-        { type: "answer", content: answerText }
-      ]);
+      setAnswer(result.response.text());
+      setChatHistory(prev => [...prev, { type: 'answer', content: result.response.text() }]);
     } catch (error) {
       console.error(error);
       setAnswer("Sorry - Something went wrong. Please try again!");
     }
     setGeneratingAnswer(false);
   }
-  
 
   async function generateAnswer(e) {
-    e.preventDefault();
-    if (!question.trim() && !selectedImage) return;
-  
-    const currentQuestion = question;
-    const currentImage = selectedImage; // Capture the current image
-    setQuestion("");
-    setSelectedImage(null); // Reset image after using it
-    
-    run(currentQuestion, currentImage);
+      e.preventDefault();
+      if (!question.trim() && !selectedImage) return;
+      const currentQuestion = question;
+      setQuestion("");
+      run(currentQuestion);
   }
-  
 
-  const handleClearHistory = () => {
-    setChatHistory([]);
-    setSelectedImage(null); // Clear uploaded image
-  };
-  
+    const handleClearHistory = () => {
+        setChatHistory([]);
+    };
 
   const handleImageChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -123,7 +105,6 @@ function App() {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-r from-blue-50 to-blue-100">
-      
       <div className="h-full max-w-4xl mx-auto flex flex-col p-3">
         {/* Fixed Header */}
         <header className="text-center py-4 flex justify-between items-center">
@@ -179,43 +160,22 @@ function App() {
           ) : (
             <>
               {chatHistory.map((chat, index) => (
-  <div
-    key={index}
-    className={`mb-4 ${
-      chat.type === "question" ? "text-right" : "text-left"
-    }`}
-  >
-    <div
-      className={`inline-block max-w-[80%] p-3 rounded-lg overflow-auto hide-scrollbar ${
-        chat.type === "question"
-          ? "bg-blue-500 text-white rounded-br-none"
-          : "bg-gray-100 text-gray-800 rounded-bl-none"
-      }`}
-    >
-      {/* Show Image Above Text for Questions */}
-      {chat.image && chat.type === "question" && (
-        <img
-          src={chat.image}
-          alt="Uploaded Query"
-          className="mb-2 max-w-full rounded-lg shadow-md border-2 border-blue-100 hover:border-blue-300 transition-all duration-300"
-          style={{
-            maxHeight: "300px",
-            objectFit: "contain",
-          }}
-        />
-      )}
-      <ReactMarkdown
-        className="overflow-auto hide-scrollbar"
-        remarkPlugins={[remarkMath]}
-        rehypePlugins={[rehypeKatex]}
-      >
-        {chat.content}
-      </ReactMarkdown>
-    </div>
-  </div>
-))}
-
-
+                <div key={index} className={`mb-4 ${chat.type === 'question' ? 'text-right' : 'text-left'}`}>
+                  <div className={`inline-block max-w-[80%] p-3 rounded-lg overflow-auto hide-scrollbar ${
+                    chat.type === 'question' 
+                      ? 'bg-blue-500 text-white rounded-br-none'
+                      : 'bg-gray-100 text-gray-800 rounded-bl-none'
+                  }`}>
+                    <ReactMarkdown 
+  className="overflow-auto hide-scrollbar"
+  remarkPlugins={[remarkMath]}
+  rehypePlugins={[rehypeKatex]}
+>
+  {chat.content}
+</ReactMarkdown>
+                  </div>
+                </div>
+              ))}
             </>
           )}
           {generatingAnswer && (
@@ -225,31 +185,11 @@ function App() {
               </div>
             </div>
           )}
-
-{selectedImage && (
-  <div className="text-left mb-4">
-    <div className="relative inline-block">
-      <img 
-        src={selectedImage} 
-        alt="Uploaded" 
-        className="max-w-[300px] rounded-lg shadow-md border-2 border-blue-100 hover:border-blue-300 transition-all duration-300"
-        style={{ 
-          maxHeight: '300px', 
-          objectFit: 'contain' 
-        }} 
-      />
-      <button
-        onClick={() => setSelectedImage(null)}
-        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
-      >
-        ×
-      </button>
-      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs py-2 px-3 rounded-b-lg">
-        Uploaded Image
-      </div>
-    </div>
-  </div>
-)}
+           {selectedImage && (
+              <div className="text-left">
+                <img src={selectedImage} alt="Uploaded" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+              </div>
+            )}
         </div>
 
         {/* Fixed Input Form */}
@@ -284,7 +224,6 @@ function App() {
             Send
           </button>
         </form>
-        <div className="text-center text-gray-500">DoubtGPT can make mistakes. Check important info. (Don't abuse later 🤬)</div>
       </div>
     </div>
   );
