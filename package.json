@@ -21,7 +21,8 @@
     "react-mathjax3": "^0.0.3",
     "rehype-katex": "^7.0.1",
     "rehype-raw": "^7.0.0",
-    "remark-math": "^6.0.0"
+    "remark-math": "^6.0.0",
+    "tesseract.js": "^5.1.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.56",

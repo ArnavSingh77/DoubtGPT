@@ -9,10 +9,11 @@
 - **User-Friendly Interface**: A clean and intuitive UI designed for seamless learning.
 - **24/7 Availability**: Solve your doubts anytime, anywhere.
 - **Personalized Responses**: Receive answers tailored to your level of understanding.
+- **Image Uploads**: Upload images of your questions for OCR text extraction.
 
 ## 🚀 How It Works
 
-1. **Ask Your Question**: Type or upload your query in the input field.
+1. **Ask Your Question**: Type or upload your query in the input field. You can also upload an image of your question.
 2. **AI Processing**: The AI model analyzes your question and generates an accurate response.
 3. **Detailed Explanation**: View the step-by-step solution or concept breakdown.
 4. **Follow-Up Questions**: Clarify further doubts based on the response.

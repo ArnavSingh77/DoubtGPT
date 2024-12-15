@@ -4,6 +4,7 @@ import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import ReactMarkdown from "react-markdown";
+import Tesseract from "tesseract.js"; // Import Tesseract
 import {
   GoogleGenerativeAI,
   HarmCategory,
@@ -52,7 +53,10 @@ function App() {
     try {
       const chatSession = model.startChat({
         generationConfig,
-        history: [],
+        history: chatHistory.map(chat => ({
+          role: chat.type === 'question' ? 'user' : 'model',
+          parts: [{ text: chat.content }]
+        })),
       });
       const result = await chatSession.sendMessage(question);
       setAnswer(result.response.text());
@@ -72,9 +76,30 @@ function App() {
       run(currentQuestion);
   }
 
-  const handleImageChange = (e) => {
+    const handleClearHistory = () => {
+        setChatHistory([]);
+    };
+
+  const handleImageChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedImage(URL.createObjectURL(e.target.files[0]));
+      const file = e.target.files[0];
+      setSelectedImage(URL.createObjectURL(file)); // Show uploaded image
+  
+      try {
+        // Perform OCR to extract text
+        const { data: { text } } = await Tesseract.recognize(
+          file, // Image file
+          'eng', // Language
+          {
+            logger: (info) => console.log(info), // Optional: Log OCR progress
+          }
+        );
+        
+        setQuestion(text); // Set the extracted text as the question
+      } catch (error) {
+        console.error("OCR Error:", error);
+        setAnswer("Sorry, I couldn't extract text from the image. Please try again!");
+      }
     }
   };
 
@@ -82,7 +107,7 @@ function App() {
     <div className="fixed inset-0 bg-gradient-to-r from-blue-50 to-blue-100">
       <div className="h-full max-w-4xl mx-auto flex flex-col p-3">
         {/* Fixed Header */}
-        <header className="text-center py-4">
+        <header className="text-center py-4 flex justify-between items-center">
           <a href="https://doubtgpt.netlify.app" 
              target="_blank" 
              rel="noopener noreferrer"
@@ -91,6 +116,14 @@ function App() {
               DoubtGPT
             </h1>
           </a>
+          {chatHistory.length > 0 && (
+            <button
+              onClick={handleClearHistory}
+              className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-colors"
+            >
+              Clear History
+            </button>
+          )}
         </header>
 
         {/* Scrollable Chat Container - Updated className */}
