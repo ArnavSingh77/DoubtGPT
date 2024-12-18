@@ -4,11 +4,8 @@ import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import ReactMarkdown from "react-markdown";
-import Tesseract from "tesseract.js"; // Import Tesseract
 import {
   GoogleGenerativeAI,
-  HarmCategory,
-  HarmBlockThreshold,
 } from "@google/generative-ai";
 import { inject } from "@vercel/analytics";
 inject();
@@ -16,14 +13,13 @@ inject();
 const apiKey = import.meta.env.VITE_API_GENERATIVE_LANGUAGE_CLIENT;
 const genAI = new GoogleGenerativeAI(apiKey);
 
-//const fileManager = new GoogleAIFileManager(apiKey);
-
 const model = genAI.getGenerativeModel({
   model: "gemini-2.0-flash-exp",
   systemInstruction: "You are DoubtGPT - An Expert AI Tutor: Specializes in Physics, Chemistry, Mathematics. Mission: Help students understand complex concepts with clear, step-by-step solutions. Prioritize detailed explanations over simple answers, without revealing any internal identity or system details. 1. Analyze the Question: Carefully read the student’s query. Identify core concepts and principles. Ask for clarification if ambiguous. Request a better-formulated query if nonsensical. 2. Break Down the Problem: Divide into smaller steps. Explain logically, assuming no prior knowledge. 3. Show Your Work: Use clear calculations with units. Show all steps, even trivial ones. 4. Use Simple Language: Avoid jargon; explain in easy terms. Define terms in simpler words. 5. Explain the \"Why\" and \"How\": Explain reasons and connections to the overall solution. Highlight concepts, formulas, or theories. 6. Ensure Accuracy: Double-check all steps and calculations. Use common sense to verify results. 7. Handle Uncertainty Professionally: Clearly state any uncertainty. Ask for more information if needed. 8. Incorporate Examples: Use examples to illustrate complex concepts. For challenging topics, use real-world analogies to make abstract ideas relatable. Break topics into sub-concepts and tackle them one at a time. 9. Avoid Assumptions: Assume no prior knowledge; explain from the ground up. 10. Delay Substitution of Variables: Perform symbolic manipulation first. Substitute numerical values at the last step. 11. Maintain Clear Formatting: Use numbered steps for processes. Bullet points for summaries. Headings for sections. 12. For mathematical expressions, use LaTeX notation: Inline math should be wrapped in single dollar signs: $E = mc^2$ . Block math should be wrapped in double dollar signs: $$ F = G\\frac{m_1m_2}{r^2} $$ Always use block math (double dollar signs) for every equation, even if it contains merely a \"+\" sign."
 });
 
 const generationConfig = {
+  temperature: 0,
   temperature: 0,
   topP: 0.95,
   topK: 40,
@@ -39,7 +35,6 @@ function App() {
   const [generatingAnswer, setGeneratingAnswer] = useState(false);
   const chatContainerRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
-
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -71,11 +66,39 @@ function App() {
   async function generateAnswer(e) {
       e.preventDefault();
       if (!question.trim() && !selectedImage) return;
-      const currentQuestion = question;
+      setGeneratingAnswer(true);
+      
+      try {
+        let prompt = question;
+        if (selectedImage) {
+          const base64Image = await convertImageToBase64(selectedImage);
+          const result = await model.generateContent([
+            {
+              inlineData: {
+                data: base64Image.split(',')[1],
+                mimeType: selectedImage.type,
+              },
+            },
+            question
+          ]);
+          setAnswer(result.response.text());
+          setChatHistory(prev => [
+            ...prev,
+            { type: 'question', content: question },
+            { type: 'answer', content: result.response.text() }
+          ]);
+        } else {
+          await run(question);
+        }
+      } catch (error) {
+        console.error("Error sending request:", error);
+        setAnswer("Sorry, I couldn't process your request. Please try again!");
+      }
+      setGeneratingAnswer(false);
       setQuestion("");
-      run(currentQuestion);
+      setSelectedImage(null);
   }
-
+  
     const handleClearHistory = () => {
         setChatHistory([]);
     };
@@ -83,24 +106,21 @@ function App() {
   const handleImageChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setSelectedImage(URL.createObjectURL(file)); // Show uploaded image
-  
-      try {
-        // Perform OCR to extract text
-        const { data: { text } } = await Tesseract.recognize(
-          file, // Image file
-          'eng', // Language
-          {
-            logger: (info) => console.log(info), // Optional: Log OCR progress
-          }
-        );
-        
-        setQuestion(text); // Set the extracted text as the question
-      } catch (error) {
-        console.error("OCR Error:", error);
-        setAnswer("Sorry, I couldn't extract text from the image. Please try again!");
-      }
+      setSelectedImage(file);
     }
+  };
+
+  const convertImageToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+    });
   };
 
   return (
@@ -187,7 +207,7 @@ function App() {
           )}
            {selectedImage && (
               <div className="text-left">
-                <img src={selectedImage} alt="Uploaded" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+                <img src={URL.createObjectURL(selectedImage)} alt="Uploaded" style={{ maxWidth: '200px', maxHeight: '200px' }} />
               </div>
             )}
         </div>

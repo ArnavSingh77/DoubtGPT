@@ -9,7 +9,7 @@
 - **User-Friendly Interface**: A clean and intuitive UI designed for seamless learning.
 - **24/7 Availability**: Solve your doubts anytime, anywhere.
 - **Personalized Responses**: Receive answers tailored to your level of understanding.
-- **Image Uploads**: Upload images of your questions for OCR text extraction.
+- **Image Uploads**: Upload images of your questions.
 
 ## 🚀 How It Works
 
