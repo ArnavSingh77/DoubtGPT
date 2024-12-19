@@ -8,7 +8,6 @@ import {
   GoogleGenerativeAI,
 } from "@google/generative-ai";
 import { inject } from "@vercel/analytics";
-import { FaUpload, FaPaperPlane } from 'react-icons/fa';
 inject();
 
 const apiKey = import.meta.env.VITE_API_GENERATIVE_LANGUAGE_CLIENT;
@@ -245,13 +244,13 @@ function App() {
                 htmlFor="image-upload"
                 className="cursor-pointer px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex items-center justify-center"
               >
-                <FaUpload />
+                Upload
               </label>
               <button
                 type="submit"
                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"
               >
-                <FaPaperPlane />
+                Send
               </button>
           </div>
         </form>
