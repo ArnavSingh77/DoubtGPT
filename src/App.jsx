@@ -45,7 +45,7 @@ function App() {
 
   async function run(question) {
     setGeneratingAnswer(true);
-    setChatHistory(prev => [...prev, { type: 'question', content: question }]);
+    setChatHistory(prev => [...prev, { type: 'question', content: question, image: null }]);
     try {
       const chatSession = model.startChat({
         generationConfig,
@@ -70,7 +70,6 @@ function App() {
       setGeneratingAnswer(true);
       
       try {
-        let prompt = question;
         if (selectedImage) {
           const base64Image = await convertImageToBase64(selectedImage);
           const result = await model.generateContent([
@@ -85,8 +84,15 @@ function App() {
           setAnswer(result.response.text());
           setChatHistory(prev => [
             ...prev,
-            { type: 'question', content: question },
-            { type: 'answer', content: result.response.text() }
+            { 
+              type: 'question', 
+              content: question || "Image analysis request", 
+              image: URL.createObjectURL(selectedImage)
+            },
+            { 
+              type: 'answer', 
+              content: result.response.text() 
+            }
           ]);
         } else {
           await run(question);

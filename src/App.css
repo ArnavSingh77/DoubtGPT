@@ -121,6 +121,7 @@
       max-height: 200px;
       border-radius: 8px;
       margin-top: 1rem;
+      align-self: flex-end;
     }
     
     .chat-image {
