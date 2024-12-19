@@ -41,6 +41,12 @@ function App() {
     }
   }, [chatHistory, generatingAnswer]);
 
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatHistory, generatingAnswer, selectedImage]);
+
   async function run(question) {
     setGeneratingAnswer(true);
     setChatHistory(prev => [...prev, { type: 'question', content: question, image: null }]);
@@ -112,6 +118,10 @@ function App() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedImage(file);
+      // Auto-scroll to the bottom of the container
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
     }
   };
 
@@ -129,10 +139,10 @@ function App() {
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-r from-blue-50 to-blue-100">
-      <div className="h-full max-w-4xl mx-auto flex flex-col p-3">
-        {/* Fixed Header */}
-        <header className="text-center py-4 flex justify-between items-center">
+    <div className="fixed inset-0 bg-gradient-to-r from-blue-50 to-blue-100 overflow-hidden">
+      <div className="h-full max-w-4xl mx-auto flex flex-col p-2 md:p-3">
+        {/* Fixed Header - reduced padding on mobile */}
+        <header className="text-center py-2 md:py-4 flex justify-between items-center">
           <a href="https://doubtgpt.netlify.app" 
              target="_blank" 
              rel="noopener noreferrer"
@@ -151,10 +161,10 @@ function App() {
           )}
         </header>
 
-        {/* Scrollable Chat Container - Updated className */}
+        {/* Scrollable Chat Container - adjusted for full screen */}
         <div 
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto mb-4 rounded-lg bg-white shadow-lg p-4 hide-scrollbar"
+          className="flex-1 overflow-y-auto mb-2 md:mb-4 rounded-lg bg-white shadow-lg p-3 md:p-4 hide-scrollbar sm:scrollbar-thin sm:scrollbar-thumb-rounded sm:scrollbar-thumb-gray-400"
         >
           {chatHistory.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6">
@@ -192,12 +202,12 @@ function App() {
                       : 'bg-gray-100 text-gray-800 rounded-bl-none'
                   }`}>
                     <ReactMarkdown 
-  className="overflow-auto hide-scrollbar"
-  remarkPlugins={[remarkMath]}
-  rehypePlugins={[rehypeKatex]}
->
-  {chat.content}
-</ReactMarkdown>
+                      className="overflow-auto hide-scrollbar"
+                      remarkPlugins={[remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
+                    >
+                      {chat.content}
+                    </ReactMarkdown>
                     {chat.image && (
                       <img src={chat.image} alt="Uploaded" className="chat-image" />
                     )}
@@ -220,10 +230,10 @@ function App() {
           )}
         </div>
 
-        {/* Fixed Input Form */}
+        {/* Fixed Input Form - adjusted padding */}
         <form
           onSubmit={generateAnswer}
-          className="bg-white rounded-lg shadow-lg p-4 flex items-center gap-2"
+          className="bg-white rounded-lg shadow-lg p-3 md:p-4 flex items-center gap-2"
         >
           <textarea
             className="flex-1 border border-gray-300 rounded p-3 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 resize-none"
